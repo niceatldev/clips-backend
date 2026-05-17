@@ -1,0 +1,25 @@
+services:
+  clips-app:
+    restart: unless-stopped
+    ports: !reset []
+    volumes:
+      - /home/mike/clips/data:/data
+      - /home/mike/clips/frontend-dist:/frontend-dist:ro
+    networks:
+      - default
+      - clips-net
+
+  worker:
+    restart: unless-stopped
+    volumes:
+      - /home/mike/clips/data:/data
+    networks:
+      - default
+      - clips-net
+
+  db:
+    restart: unless-stopped
+
+networks:
+  clips-net:
+    external: true

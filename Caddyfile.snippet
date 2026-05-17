@@ -1,0 +1,16 @@
+clips.niceatl.com {
+    encode zstd gzip
+
+    handle /api/* {
+        reverse_proxy clips-app:3002
+    }
+
+    handle /files/* {
+        reverse_proxy clips-app:3002
+    }
+
+    handle {
+        root * /srv/site
+        file_server
+    }
+}
