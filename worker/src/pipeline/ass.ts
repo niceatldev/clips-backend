@@ -2,7 +2,8 @@ import path from 'path';
 import { execFileAsync, hexToAssBgr, type TemplateConfig } from './shared.js';
 
 export const CAPTION_FONT_SCALE = 0.8;
-export const CAPTION_LINE_SPACING_SCALE = 0.5;
+export const CAPTION_LINE_SPACING_SCALE = 0.85;
+export const CAPTION_MIN_CHARS_PER_LINE = 34;
 
 export const generateAss = async ({
   wordsJsonPath,
@@ -19,7 +20,7 @@ export const generateAss = async ({
     path.resolve(process.cwd(), 'scripts/words_to_ass.py'),
     wordsJsonPath,
     outputAssPath,
-    String(template.caption.max_chars_per_line),
+    String(Math.max(template.caption.max_chars_per_line, CAPTION_MIN_CHARS_PER_LINE)),
     String(template.caption.max_lines),
     fontFamily,
     String(Math.max(1, Math.round(template.caption.font_size * CAPTION_FONT_SCALE))),

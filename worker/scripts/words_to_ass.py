@@ -54,8 +54,9 @@ events = []
 HL  = "{\\c" + highlight_bgr + "}"
 RST = "{\\r}"
 
-# Pixel distance between line baselines
-line_height_px = font_size * line_spacing
+# Pixel distance between line baselines. Keep this tight, but never tighter
+# than the visible font box or multi-line captions will collide.
+line_height_px = max(font_size * line_spacing, font_size * 1.05)
 # Bottom of the text block (same as libass default with \an2 + margin_v)
 base_y = 1920 - margin_v
 
