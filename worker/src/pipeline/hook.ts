@@ -1,7 +1,12 @@
 import path from 'path';
 import { readFile, symlink, writeFile } from 'fs/promises';
 import { execFileAsync, type FontRow, type TemplateConfig } from './shared.js';
-import { CAPTION_FONT_SCALE, CAPTION_LINE_SPACING_SCALE } from './ass.js';
+import {
+  CAPTION_EFFECTIVE_MARGIN_V,
+  CAPTION_FONT_SCALE,
+  CAPTION_LINE_SPACING_SCALE,
+  CAPTION_MAX_LINES
+} from './ass.js';
 
 const escapeHtml = (value: string) =>
   value
@@ -84,10 +89,11 @@ export const renderHookPng = async ({
   try { await symlink(logoSrc, logoDst); } catch { /* already exists */ }
   // Derive bottom anchor from caption settings so pill always sits just above captions
   // regardless of how many lines the hook text wraps to
-  const captionBottom = 1920 - (template.caption?.margin_v ?? 250);
+  const captionMarginV = Math.min(template.caption?.margin_v ?? CAPTION_EFFECTIVE_MARGIN_V, CAPTION_EFFECTIVE_MARGIN_V);
+  const captionBottom = 1920 - captionMarginV;
   const captionFontSize = (template.caption?.font_size ?? 64) * CAPTION_FONT_SCALE;
   const captionLineSpacing = (template.caption?.line_spacing ?? 1.3) * CAPTION_LINE_SPACING_SCALE;
-  const maxCaptionLines = template.caption?.max_lines ?? 3;
+  const maxCaptionLines = Math.min(template.caption?.max_lines ?? CAPTION_MAX_LINES, CAPTION_MAX_LINES);
   const captionLineHeight = captionFontSize * captionLineSpacing;
   const captionBlockHeight = captionFontSize * 1.15 + Math.max(0, maxCaptionLines - 1) * captionLineHeight;
   const captionTop = Math.round(captionBottom - captionBlockHeight);
