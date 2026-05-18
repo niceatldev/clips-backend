@@ -3,7 +3,7 @@ import { execFileAsync, hexToAssBgr, type TemplateConfig } from './shared.js';
 
 export const CAPTION_FONT_SCALE = 0.8;
 export const CAPTION_LINE_SPACING_SCALE = 0.85;
-export const CAPTION_MIN_CHARS_PER_LINE = 34;
+export const CAPTION_MIN_CHARS_PER_LINE = 38;
 
 export const generateAss = async ({
   wordsJsonPath,

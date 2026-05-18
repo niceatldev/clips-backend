@@ -89,9 +89,9 @@ export const renderHookPng = async ({
   const captionLineSpacing = (template.caption?.line_spacing ?? 1.3) * CAPTION_LINE_SPACING_SCALE;
   const maxCaptionLines = template.caption?.max_lines ?? 3;
   const captionLineHeight = captionFontSize * captionLineSpacing;
-  const captionBlockHeight = captionFontSize + Math.max(0, maxCaptionLines - 1) * captionLineHeight;
+  const captionBlockHeight = captionFontSize * 1.15 + Math.max(0, maxCaptionLines - 1) * captionLineHeight;
   const captionTop = Math.round(captionBottom - captionBlockHeight);
-  const positionBottomPx = 1920 - captionTop + 12; // tight gap above visible captions
+  const positionBottomPx = 1920 - captionTop + 28; // tight gap above visible captions
 
   const html = baseTemplate
     .replace('{{FONT_FACE_CSS}}', fontFaceCss)

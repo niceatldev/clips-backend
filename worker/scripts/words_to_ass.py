@@ -64,10 +64,27 @@ for chunk in chunks:
     flat = [i for line in chunk for i in line]
     if not flat: continue
     num_lines = len(chunk)
+    chunk_end = max(words[flat[-1]]["end"], words[flat[-1]]["start"] + 0.05)
+    next_start_after_chunk = None
+    if flat[-1] + 1 < len(words):
+        next_start_after_chunk = words[flat[-1] + 1]["start"]
 
-    for active in flat:
+    for active_pos, active in enumerate(flat):
         ws = max(words[active]["start"], words[flat[0]]["start"])
-        we = max(words[active]["end"], ws + 0.05)
+        raw_end = max(words[active]["end"], ws + 0.05)
+        if active_pos + 1 < len(flat):
+            next_start = words[flat[active_pos + 1]]["start"]
+        else:
+            next_start = next_start_after_chunk
+
+        # Whisper occasionally returns overlapping word timestamps. Each active
+        # word renders the whole caption group, so clamp the visible window to
+        # stop two caption groups from stacking on the same frame.
+        if next_start is not None and next_start > ws:
+            we = min(raw_end, next_start - 0.01)
+        else:
+            we = min(raw_end, chunk_end)
+        we = max(we, ws + 0.03)
 
         # Emit one positioned event per visual line
         for line_idx, line in enumerate(chunk):
