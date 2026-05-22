@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile, symlink, writeFile } from 'fs/promises';
-import { execFileAsync, type FontRow, type TemplateConfig } from './shared.js';
+import { execFileAsync, toLocalPath, type FontRow, type TemplateConfig } from './shared.js';
 import {
   CAPTION_EFFECTIVE_MARGIN_V,
   CAPTION_FONT_SCALE,
@@ -43,9 +43,10 @@ const createFontFaceCss = async (font: FontRow | null, family: string, workspace
     return '';
   }
 
-  const localFilename = path.basename(font.storage_path);
+  const fontPath = toLocalPath(font.storage_path);
+  const localFilename = path.basename(fontPath);
   const localFontPath = path.join(workspace, localFilename);
-  await symlink(font.storage_path, localFontPath);
+  await symlink(fontPath, localFontPath);
 
   return `@font-face {
   font-family: '${family}';

@@ -113,7 +113,7 @@ export const localHookPath = (clipId: number) => path.join(LOCAL_DATA_DIR, 'hook
 export const localTranscriptPath = (sourceId: number) => path.join(LOCAL_DATA_DIR, 'transcripts', String(sourceId), 'words.json');
 
 // Translate a canonical DATA_DIR path to the LOCAL_DATA_DIR equivalent.
-const toLocalPath = (p: string): string => {
+export const toLocalPath = (p: string): string => {
   if (LOCAL_DATA_DIR === DATA_DIR) return p;
   if (p.startsWith(DATA_DIR + '/') || p === DATA_DIR) {
     return LOCAL_DATA_DIR + p.slice(DATA_DIR.length);
@@ -220,9 +220,10 @@ export const createFontsDir = async (workspace: string, fonts: FontRow[]) => {
   await ensureDir(target);
 
   for (const font of fonts) {
-    const linkPath = path.join(target, path.basename(font.storage_path));
+    const fontPath = toLocalPath(font.storage_path);
+    const linkPath = path.join(target, path.basename(fontPath));
     if (!fileExists(linkPath)) {
-      await symlink(font.storage_path, linkPath);
+      await symlink(fontPath, linkPath);
     }
   }
 
