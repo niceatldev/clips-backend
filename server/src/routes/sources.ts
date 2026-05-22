@@ -168,7 +168,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
 router.get('/', async (_req, res) => {
   const result = await query<SourceRow>(
-    'SELECT id, filename, storage_path, duration, status, words, error, created_at FROM sources ORDER BY created_at DESC'
+    'SELECT id, filename, storage_path, duration, status, NULL AS words, error, created_at FROM sources ORDER BY created_at DESC'
   );
   res.json(result.rows.map(mapSource));
 });
