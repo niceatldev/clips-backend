@@ -21,6 +21,8 @@ services:
       - db
 
   worker:
+    profiles:
+      - vps-worker
     build:
       context: ./worker
     environment:
