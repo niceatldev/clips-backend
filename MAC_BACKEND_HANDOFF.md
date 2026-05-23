@@ -145,6 +145,12 @@ Restart Mac worker:
 ssh mikenice@192.168.86.34 'launchctl kickstart -k gui/501/com.butternomics.clips-worker'
 ```
 
+If the LaunchAgent plist environment changed, do a full unload/reload. A kickstart can keep the old cached environment:
+
+```bash
+ssh mikenice@192.168.86.34 'launchctl bootout gui/501 /Users/mikenice/Library/LaunchAgents/com.butternomics.clips-worker.plist 2>/dev/null || true; launchctl bootstrap gui/501 /Users/mikenice/Library/LaunchAgents/com.butternomics.clips-worker.plist'
+```
+
 Restart BCE app on VPS:
 
 ```bash
@@ -160,7 +166,13 @@ Likely cause: worker rendered the file, then failed to register it because `VPS_
 Fix:
 
 ```bash
-ssh mikenice@192.168.86.34 'plutil -replace EnvironmentVariables.VPS_CLIPS_URL -string http://127.0.0.1:3002 /Users/mikenice/Library/LaunchAgents/com.butternomics.clips-worker.plist && launchctl kickstart -k gui/501/com.butternomics.clips-worker'
+ssh mikenice@192.168.86.34 'plutil -replace EnvironmentVariables.VPS_CLIPS_URL -string http://127.0.0.1:3002 /Users/mikenice/Library/LaunchAgents/com.butternomics.clips-worker.plist && launchctl bootout gui/501 /Users/mikenice/Library/LaunchAgents/com.butternomics.clips-worker.plist 2>/dev/null || true; launchctl bootstrap gui/501 /Users/mikenice/Library/LaunchAgents/com.butternomics.clips-worker.plist'
+```
+
+Then verify the running environment, not just the plist file:
+
+```bash
+ssh mikenice@192.168.86.34 'launchctl print gui/501/com.butternomics.clips-worker | grep VPS_CLIPS_URL'
 ```
 
 If output and hook files already exist, repair the DB row instead of re-rendering blindly:
