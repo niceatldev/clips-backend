@@ -4,6 +4,7 @@ import { createWriteStream, existsSync } from 'fs';
 import { pipeline } from 'stream/promises';
 
 const DATA_DIR = process.env.DATA_DIR || '/data';
+const CANONICAL_DATA_DIR = '/data';
 
 export const paths = {
   dataDir: DATA_DIR,
@@ -17,6 +18,15 @@ export const paths = {
 
 export const ensureStorageLayout = async () => {
   await Promise.all(Object.values(paths).map((target) => mkdir(target, { recursive: true })));
+};
+
+export const resolveStoragePath = (target: string) => {
+  if (DATA_DIR === CANONICAL_DATA_DIR) return target;
+  if (target === CANONICAL_DATA_DIR) return DATA_DIR;
+  if (target.startsWith(`${CANONICAL_DATA_DIR}/`)) {
+    return path.join(DATA_DIR, target.slice(CANONICAL_DATA_DIR.length + 1));
+  }
+  return target;
 };
 
 export const sanitizeFilename = (filename: string) => filename.replace(/[^a-zA-Z0-9._-]+/g, '-');
@@ -43,26 +53,29 @@ export const tempJobDir = async (prefix: string, id: number) => {
 };
 
 export const writeJson = async (target: string, value: unknown) => {
+  target = resolveStoragePath(target);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, JSON.stringify(value, null, 2), 'utf8');
 };
 
-export const readJson = async <T>(target: string) => JSON.parse(await readFile(target, 'utf8')) as T;
+export const readJson = async <T>(target: string) => JSON.parse(await readFile(resolveStoragePath(target), 'utf8')) as T;
 
 export const saveBuffer = async (target: string, data: Buffer) => {
+  target = resolveStoragePath(target);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, data);
 };
 
 export const saveRequestStream = async (target: string, input: NodeJS.ReadableStream) => {
+  target = resolveStoragePath(target);
   await mkdir(path.dirname(target), { recursive: true });
   await pipeline(input, createWriteStream(target));
 };
 
 export const removePath = async (target: string) => {
-  await rm(target, { recursive: true, force: true });
+  await rm(resolveStoragePath(target), { recursive: true, force: true });
 };
 
-export const fileExists = (target: string) => existsSync(target);
+export const fileExists = (target: string) => existsSync(resolveStoragePath(target));
 
 export const publicOutputUrl = (clipId: number) => `/files/outputs/${clipId}/output.mp4`;

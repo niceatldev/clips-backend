@@ -9,6 +9,7 @@ import {
   hookPngPath,
   outputVideoPath,
   removePath,
+  resolveStoragePath,
   saveBuffer,
   saveRequestStream,
   sourceMasterPath,
@@ -87,12 +88,12 @@ router.post('/register', async (req, res) => {
   if (!file_path) {
     return res.status(400).json({ error: 'file_path is required' });
   }
-  if (!existsSync(file_path)) {
+  if (!existsSync(resolveStoragePath(file_path))) {
     return res.status(400).json({ error: `File not found at path: ${file_path}` });
   }
 
   const fname = filename || path.basename(file_path);
-  const duration = await probeDuration(file_path);
+  const duration = await probeDuration(resolveStoragePath(file_path));
 
   const result = await query<SourceRow>(
     `INSERT INTO sources (filename, storage_path, duration, status)
@@ -131,7 +132,7 @@ router.put('/:id', async (req, res) => {
   }
 
   await saveRequestStream(source.storage_path, req);
-  const duration = await probeDuration(source.storage_path);
+  const duration = await probeDuration(resolveStoragePath(source.storage_path));
   await query('UPDATE sources SET duration = $1 WHERE id = $2', [duration, sourceId]);
   res.status(204).end();
 });
@@ -191,7 +192,7 @@ router.get('/:id/file', async (req, res) => {
   if (!source) {
     return res.status(404).json({ error: 'Source not found' });
   }
-  res.sendFile(source.storage_path);
+  res.sendFile(resolveStoragePath(source.storage_path));
 });
 
 router.get('/dev/:id/video', async (req, res) => {
@@ -200,7 +201,7 @@ router.get('/dev/:id/video', async (req, res) => {
   if (!source) {
     return res.status(404).json({ error: 'Source not found' });
   }
-  res.sendFile(source.storage_path);
+  res.sendFile(resolveStoragePath(source.storage_path));
 });
 
 router.post('/:id/purge-file', async (req, res) => {
