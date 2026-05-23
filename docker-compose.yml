@@ -1,5 +1,7 @@
 services:
   clips-app:
+    profiles:
+      - vps-api
     build:
       context: ./server
     ports:
